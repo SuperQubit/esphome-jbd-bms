@@ -43,6 +43,8 @@ static const char *const ERRORS[ERRORS_SIZE] = {
     "Unknown (0x0F)",                 // 0x0F
 };
 
+static uint8_t JBD_CURRENT_CMD = 0;
+
 void JbdBms::setup() { this->send_command_(JBD_CMD_READ, JBD_CMD_HWVER); }
 
 void JbdBms::loop() {
@@ -141,6 +143,10 @@ bool JbdBms::parse_jbd_bms_byte_(uint8_t byte) {
     return true;
 
   uint8_t function = raw[1];
+  if(function==JBD_CMD_READ)
+  {
+    function=JBD_CURRENT_CMD;
+  }
   uint16_t computed_crc = chksum_(raw + 2, data_len + 2);
   uint16_t remote_crc = uint16_t(raw[frame_len - 3]) << 8 | (uint16_t(raw[frame_len - 2]) << 0);
   if (computed_crc != remote_crc) {
@@ -411,6 +417,7 @@ void JbdBms::send_command_(uint8_t action, uint8_t function) {
 
   this->write_array(frame, 7);
   this->flush();
+  JBD_CURRENT_CMD=function;
 }
 
 std::string JbdBms::error_bits_to_string_(const uint16_t mask) {
