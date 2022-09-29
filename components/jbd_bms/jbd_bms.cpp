@@ -170,7 +170,7 @@ void JbdBms::on_jbd_bms_data_(const uint8_t &function, const std::vector<uint8_t
       this->on_hardware_version_data_(data);
       break;
     default:
-      ESP_LOGW(TAG, "Unhandled response received: %s", format_hex_pretty(&data.front(), data.size()).c_str());
+      ESP_LOGW(TAG, "Unhandled response received (%x): %s", function, format_hex_pretty(&data.front(), data.size()).c_str());
   }
 }
 
